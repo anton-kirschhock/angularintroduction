@@ -15,6 +15,132 @@ The branchnames are:
 - **rxjs**: introduces HTTP client and Handling and using Observables.
 - **master**: The final product!
 
-## In this Step: Starter
+## In this Step: First steps
 
-Well yea.. Nothing much except the setup of the basic project... Goto _first_step_ to begin!
+1. Generate the component files using Angular CLI:
+
+```sh
+ng generate component userGrid
+```
+
+1. Create a interface to define the model
+
+```sh
+ng generate interface models/user --type=model --skiptest=true
+```
+
+Add the following content:
+
+```ts
+export interface User {
+  id: number;
+  name: string;
+  firstName: string;
+  email: string;
+  dateOfBirth: string;
+}
+```
+
+3. Create user.service.ts service
+
+```sh
+ng g service user
+```
+
+```ts
+@Injectable({ providedIn: 'root' })
+export class UserService {
+  public getAll(): User[] {
+    return this.getUserList();
+  }
+
+  private getUserList(): User[] {
+    return [...];
+  }
+}
+```
+
+4. Add @Input() to user-grid.component.ts
+
+```ts
+  @Input() dataSource: User[];
+```
+
+5. Add the property userList to app.component and inject the service
+
+```ts
+export class AppComponent implements OnInit {
+  public userList: User[];
+  constructor(private userService: UserService) {}
+
+  ngOnInit() {
+    this.userList = this.userService.getAll();
+  }
+}
+```
+
+6. Add the component to the app.component.html and one way binding:
+
+```html
+<app-user-grid [dataSource]="userList"></app-user-grid>
+```
+
+7. add the Card and table module to the app module imports:
+
+```ts
+import { MatTableModule, MatCardModule } from '@angular/material';
+
+@NgModule({
+  declarations: [...],
+  imports: [...
+    MatTableModule,
+    MatCardModule
+  ],
+  providers: [...],
+  bootstrap: [...]
+})
+export class AppModule { }
+
+```
+
+8. Add the HTML to the user-grid html:
+
+```html
+<mat-card class="mat-elevation-z8">
+  <mat-card-header> <h1>Users</h1> </mat-card-header>
+  <mat-card-content>
+    <table mat-table [dataSource]="dataSource" class="full-width">
+      <ng-container matColumnDef="id">
+        <th mat-header-cell *matHeaderCellDef>#</th>
+        <td mat-cell *matCellDef="let element">{{ element.id }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="fullName">
+        <th mat-header-cell *matHeaderCellDef>Full name</th>
+        <td mat-cell *matCellDef="let element">
+          {{ element.firstName }} {{ element.name }}
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="email">
+        <th mat-header-cell *matHeaderCellDef>Email</th>
+        <td mat-cell *matCellDef="let element">{{ element.email }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="dob">
+        <th mat-header-cell *matHeaderCellDef>Date of birth</th>
+        <td mat-cell *matCellDef="let element">{{ element.dateOfBirth }}</td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+    </table>
+  </mat-card-content>
+</mat-card>
+```
+
+... and add the following to the TS code:
+
+```ts
+  public readonly displayedColumns = ['id', 'fullName', 'email', 'dob'];
+```
