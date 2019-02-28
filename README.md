@@ -17,7 +17,16 @@ The branchnames are:
 
 ## In this Step: Reactive Extentions using RxJS
 
-Backend -> docker
+This section needs a Backend.
+There is one! Simply navigate to the backend and enter:
+
+```sh
+docker-compose build;
+docker-compose up;
+```
+
+and you can navigate to http://localhost:7070/api/users to fetch a list of all users.
+
 Http Client
 Subscribing observables
 

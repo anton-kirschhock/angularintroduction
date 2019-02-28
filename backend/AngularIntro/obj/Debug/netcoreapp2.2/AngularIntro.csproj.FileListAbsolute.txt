@@ -1,0 +1,3 @@
+C:\projects\learning\angularintroduction\backend\AngularIntro\obj\Debug\netcoreapp2.2\AngularIntro.csproj.CoreCompileInputs.cache
+C:\projects\learning\angularintroduction\backend\AngularIntro\obj\Debug\netcoreapp2.2\AngularIntro.AssemblyInfoInputs.cache
+C:\projects\learning\angularintroduction\backend\AngularIntro\obj\Debug\netcoreapp2.2\AngularIntro.AssemblyInfo.cs
