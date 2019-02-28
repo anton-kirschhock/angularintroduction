@@ -10,9 +10,9 @@ export class UserService {
     return this.getUserList();
   }
 
-  // public getById(id: number): User {
-  //   return this.getUserList().find(u => u.id === id);
-  // }
+  public getById(id: number): User {
+    return this.getUserList().find(u => u.id === id);
+  }
 
   private getUserList(): User[] {
     return [

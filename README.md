@@ -15,132 +15,245 @@ The branchnames are:
 - **rxjs**: introduces HTTP client and Handling and using Observables.
 - **master**: The final product!
 
-## In this Step: First steps
+## In this Step: Router
 
-1. Generate the component files using Angular CLI:
-
-```sh
-ng generate component userGrid
-```
-
-1. Create a interface to define the model
+Firstly we need to create a routing module for the application.
 
 ```sh
-ng generate interface models/user --type=model --skiptest=true
+ng g m appRouting --flat=true --module=app
 ```
 
-Add the following content:
+This generates a app-routing module in the root folder and also adds it directly in the app module.
+
+Now we need to add the following before @NgModule:
 
 ```ts
-export interface User {
-  id: number;
-  name: string;
-  firstName: string;
-  email: string;
-  dateOfBirth: string;
-}
+import { Routes } from '@angular/router';
+
+const routes: Routes = [];
 ```
 
-3. Create user.service.ts service
-
-```sh
-ng g service user
-```
+and add the following to the imports:
 
 ```ts
-@Injectable({ providedIn: 'root' })
-export class UserService {
-  public getAll(): User[] {
-    return this.getUserList();
+imports: [..., RouterModule.forRoot(routes)]
+```
+
+and export
+
+```ts
+exports: [RouterModule];
+```
+
+Now the magic needs to happen. We need to add a overview route and a route which redirects all not known route to our overview. Add the following to the routes const:
+
+```ts
+const routes: Routes = [
+  {
+    path: 'overview',
+    component: UserGridComponent
+  },
+  {
+    path: '**',
+    pathMatch: 'full',
+    redirectTo: 'overview'
   }
-
-  private getUserList(): User[] {
-    return [...];
-  }
-}
+];
 ```
 
-4. Add @Input() to user-grid.component.ts
+We need to tell angular where to render the routes to. in AppComponent add:
 
-```ts
-  @Input() dataSource: User[];
+```html
+<router-outlet></router-outlet>
 ```
 
-5. Add the property userList to app.component and inject the service
+The previous code we've written in the app.component.ts can be moved to the user-grid.component.ts, as we don't need the binding anymore:
 
 ```ts
-export class AppComponent implements OnInit {
-  public userList: User[];
+public dataSource: User[];
+  public readonly displayedColumns = ['id', 'fullName', 'email', 'dob'];
+
   constructor(private userService: UserService) {}
 
   ngOnInit() {
-    this.userList = this.userService.getAll();
+    this.dataSource = this.userService.getAll();
   }
-}
 ```
 
-6. Add the component to the app.component.html and one way binding:
+Now we want to be able to navigate to a detail page when we click a row.
 
-```html
-<app-user-grid [dataSource]="userList"></app-user-grid>
+Create a new component:
+
+```sh
+ng g c userDetail
 ```
 
-7. add the Card and table module to the app module imports:
-
-```ts
-import { MatTableModule, MatCardModule } from '@angular/material';
-
-@NgModule({
-  declarations: [...],
-  imports: [...
-    MatTableModule,
-    MatCardModule
-  ],
-  providers: [...],
-  bootstrap: [...]
-})
-export class AppModule { }
-
-```
-
-8. Add the HTML to the user-grid html:
+In the user-detail.component.html file add the following html:
 
 ```html
 <mat-card class="mat-elevation-z8">
-  <mat-card-header> <h1>Users</h1> </mat-card-header>
+  <mat-card-header>
+    <h1>User detail <small>{{ user.id }}</small></h1>
+  </mat-card-header>
   <mat-card-content>
-    <table mat-table [dataSource]="dataSource" class="full-width">
-      <ng-container matColumnDef="id">
-        <th mat-header-cell *matHeaderCellDef>#</th>
-        <td mat-cell *matCellDef="let element">{{ element.id }}</td>
-      </ng-container>
-
-      <ng-container matColumnDef="fullName">
-        <th mat-header-cell *matHeaderCellDef>Full name</th>
-        <td mat-cell *matCellDef="let element">
-          {{ element.firstName }} {{ element.name }}
-        </td>
-      </ng-container>
-
-      <ng-container matColumnDef="email">
-        <th mat-header-cell *matHeaderCellDef>Email</th>
-        <td mat-cell *matCellDef="let element">{{ element.email }}</td>
-      </ng-container>
-
-      <ng-container matColumnDef="dob">
-        <th mat-header-cell *matHeaderCellDef>Date of birth</th>
-        <td mat-cell *matCellDef="let element">{{ element.dateOfBirth }}</td>
-      </ng-container>
-
-      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-      <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
-    </table>
+    <form #userForm="ngForm">
+      <mat-form-field class="full-width">
+        <mat-label>First name</mat-label>
+        <input
+          matInput
+          placeholder="First name"
+          [(ngModel)]="user.firstName"
+          name="firsName"
+        />
+      </mat-form-field>
+      <mat-form-field class="full-width">
+        <mat-label>Last name</mat-label>
+        <input
+          matInput
+          placeholder="Last name"
+          [(ngModel)]="user.name"
+          name="name"
+        />
+      </mat-form-field>
+      <mat-form-field class="full-width">
+        <mat-label>Email</mat-label>
+        <input
+          matInput
+          placeholder="Email"
+          type="email"
+          [(ngModel)]="user.email"
+          name="email"
+        />
+      </mat-form-field>
+      <mat-form-field class="full-width">
+        <mat-label>DOB</mat-label>
+        <input
+          matInput
+          placeholder="DOB"
+          [(ngModel)]="user.dateOfBirth"
+          name="dateOfBirth"
+        />
+      </mat-form-field>
+    </form>
   </mat-card-content>
 </mat-card>
 ```
 
-... and add the following to the TS code:
+And add some styling to make it look nice:
+
+```scss
+.full-width {
+  width: 100%;
+  display: block;
+}
+```
+
+Note the [(ngModel)], we call it a Banana in a Box. It is basicly a two way binding.
+We can have a input using the [] and the () is a output. Basicly when a event (an output) occures, it will assign the output from that event to the property you've assigned. We'll take a deeper look later on.
+
+We need to let Angular now about FormsModule and the material form module. Add the following to app.module.ts's imports:
 
 ```ts
-  public readonly displayedColumns = ['id', 'fullName', 'email', 'dob'];
+imports:[..., MatFormFieldModule, MatInputModule, FormsModule]
 ```
+
+Next thing we need to do is to define a route:
+
+```ts
+{
+  path:'details/:id',
+  component: UserDetailComponent
+}
+```
+
+:id is a param we can access later on.
+We will create a Resolver, which will read that :id param and fetch the model from the service. Sadly there is no Generate command... So create a new file in the root of the app 'detail.resolver.ts':
+
+```ts
+@Injectable({ providedIn: 'root' })
+export class DetailResolver implements Resolve<User> {
+  constructor(private userService: UserService, private router: Router) {}
+  public resolve(
+    route: ActivatedRouteSnapshot,
+    state: RouterStateSnapshot
+  ): User {
+    const id = +route.params['id'];
+    if (isNaN(id)) {
+      this.router.navigate(['/']);
+      return undefined;
+    }
+    return this.userService.getById(id);
+  }
+}
+```
+
+Now we need to define that this resolver has to be used for this route. Add the following to our route:
+
+```ts
+  {
+    path: 'details/:id',
+    component: UserDetailComponent,
+    resolve: {
+      model: DetailResolver
+    }
+  }
+```
+
+and in our detais.component.ts needs:
+
+```ts
+  constructor(private activatedRoute: ActivatedRoute) {}
+
+  ngOnInit() {
+    this.user = this.activatedRoute.snapshot.data['model'];
+  }
+```
+
+Now add the following to our grid row:
+
+```html
+<tr
+  mat-row
+  *matRowDef="let row; columns: displayedColumns"
+  class="navigatable-row"
+  (click)="navigate(row)"
+></tr>
+```
+
+and in the typescript code:
+
+```ts
+export class UserGridComponent implements OnInit {
+  public dataSource: User[];
+  public readonly displayedColumns = ['id', 'fullName', 'email', 'dob'];
+
+  constructor(private userService: UserService, private router: Router) {}
+
+  ngOnInit() {
+    this.dataSource = this.userService.getAll();
+  }
+
+  public navigate(row: User) {
+    this.router.navigate(['/', 'details', row.id]);
+  }
+}
+```
+
+oh and dont we like all some hover effect?
+
+```scss
+.navigatable-row:hover {
+  outline: 1px solid salmon;
+  cursor: pointer;
+}
+```
+
+We also would like to return. Add the following to the bottom of the detail html:
+
+```html
+<a mat-button [routerLink]="['/']">
+  <mat-icon>back</mat-icon> Back to overview
+</a>
+```
+
+Don't forget to include the MatIconModule, MatButtonModule module in our imports!
