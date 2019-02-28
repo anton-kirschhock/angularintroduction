@@ -23,5 +23,6 @@ Subscribing observables
 
 - Self subscribing
 - | async pipe
-  Handling observables (pipes)
-  Two way binding (Email input, Complexer piping)
+
+Handling observables (pipes)
+Two way binding (Email input, Complexer piping)
